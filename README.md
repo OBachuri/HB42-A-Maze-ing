@@ -3,14 +3,14 @@
 This project is part of the 42.fr curriculum.
 
 The task: 
-	- Create 2d maze with thin wall, 
-	- Place pattern "42" in the maze,
-	- Find the shortest path between enter and exit,
-	- Show the maze and the shortest path,
-	- Write the maze and the path in a file. 
+- Create 2d maze with thin wall, 
+- Place pattern "42" in the maze,
+- Find the shortest path between enter and exit,
+- Show the maze and the shortest path,
+- Write the maze and the path in a file. 
 Bonus part: 
-	- Animate maze creation process
-	- Implement several algorithms of maze creation
+- Animate maze creation process
+- Implement several algorithms of maze creation
 
 
 ## Installation
