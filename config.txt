@@ -3,7 +3,7 @@
 # Maze width (number of cells)
 WIDTH=22
 
-# Maze height
+# Maze height (number of cells)
 HEIGHT=15	
 
 # Entry coordinates (x,y)
@@ -16,8 +16,8 @@ OUTPUT_FILE=maze.txt
 
 # Is the maze perfect?
 # The PERFECT maze must contain exactly one path between
-# the entry and the exit 
+# any two cells in the maze
 PERFECT=True
 
-# if need set seed for randomizer
+# if it's necessary to set seed for randomizer
 # SEED=11
