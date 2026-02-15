@@ -8,6 +8,7 @@ The task:
 - Find the shortest path between enter and exit,
 - Show the maze and the shortest path,
 - Write the maze and the path in a file. 
+
 Bonus part: 
 - Animate maze creation process
 - Implement several algorithms of maze creation
