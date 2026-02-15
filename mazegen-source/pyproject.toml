@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools", "wheel","dotenv"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mazegen"
+version = "0.1.0"
+description = "Maze generation library"
+readme = "mazegen/README.md"
+requires-python = ">=3.10"
+dependencies = ["pydantic"]
+authors = [
+  { name="Alexander Bachurin", email="bachurin_s@yahoo.de" },
+  { name="Jenny Truckses", email="jtruckse@student.42heilbronn.de" }
+]
+
+[tool.setuptools]
+packages = ["mazegen"]
+[tool.setuptools.package-data]
+mazegen = ["README.md"]

@@ -1,0 +1,23 @@
+# Config for Maze
+
+# Maze width (number of cells)
+WIDTH=22
+
+# Maze height
+HEIGHT=15	
+
+# Entry coordinates (x,y)
+ENTRY=0,0
+
+# Exit coordinates (x,y) 
+EXIT=21,14
+
+OUTPUT_FILE=maze.txt
+
+# Is the maze perfect?
+# The PERFECT maze must contain exactly one path between
+# the entry and the exit 
+PERFECT=True
+
+# if need set seed for randomizer
+# SEED=11
