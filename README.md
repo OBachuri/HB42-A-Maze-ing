@@ -1,3 +1,7 @@
+*This project has been created as part of the 42 curriculum by obachuri and jtruckse.*
+
+---
+
 # A-Maze-ing
 
 This project is part of the 42.fr curriculum.
@@ -31,7 +35,6 @@ make run my_config.txt
 
 # Run directly with Python
 python3 a_maze_ing.py config.txt
-
 ```
 
 ## Result

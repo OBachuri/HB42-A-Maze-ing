@@ -1,6 +1,10 @@
+
+*This project has been created as part of the 42 curriculum by obachuri and jtruckse.*
+
+---
 # MazeGen Library
 
-A Python library for work with 2d maze - generation and finding shortest path.
+A Python library for work with 2d maze with thin walls - generation and finding shortest path.
 
 
 ## Installation
@@ -22,12 +26,27 @@ m_param = CMazeParams(width=20,
                       perfect=False
                      )
 
-maze_ = MazeGenerator.generate(m_param)
-path_ = MazeGenerator.find_path_BFS(maze_, m_param)
+maze:list[list[int]] = MazeGenerator.generate(m_param)
+path:list[list[int]] = MazeGenerator.find_path_BFS(maze, m_param)
 
 # save maze to file
-MazeGenerator.write_to_file(maze_, m_param)
+MazeGenerator.write_to_file(maze, m_param)
 ```
+
+```
+maze: list[list[int]]
+x = path[i][0] 
+y = path[i][1] 
+cell = maze[y][x] 
+
+Value in cell:
+        1 - (xxx1) - Top (North) wall present,
+        2 - (xx1x) - Right (East) wall present,
+        4 - (01xx) - entry
+        8 - (10xx) - exit
+        f - (1111) - pattern
+``` 
+
 
 ### MazeGenerator Class
 **metods:**
@@ -42,7 +61,6 @@ MazeGenerator.write_to_file(maze_, m_param)
                   file_name: str) -> bool:
 ```
 
-
 ### CMazeParams Class
 
 **Attributes:**
@@ -52,7 +70,7 @@ MazeGenerator.write_to_file(maze_, m_param)
     entry: tuple[int, int]      # Entry position (x, y)
     exit: tuple[int, int]       # Exit position (x, y)
     output_file: str            # Output file path/name
-    perfect: bool = True		# Perfect maze flag
+    perfect: bool = True        # Perfect maze flag
     seed: int | None = None     # Seed for initialize randomizer
     insert_42: bool = True      # Flag - try to place "42" pattern in a maze	
     w_cell_size: int = 25		
