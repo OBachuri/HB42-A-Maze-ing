@@ -21,3 +21,10 @@ PERFECT=True
 
 # if it's necessary to set seed for randomizer
 # SEED=11
+
+# Size of the maze cells, default value 25 pixels 
+# W_CELL_SIZE=10
+
+# Place the "42" pattern in the maze, default value True (True/False)
+# INSERT_42=False 
+
