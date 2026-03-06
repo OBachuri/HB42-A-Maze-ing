@@ -81,8 +81,8 @@ Value in cell:
                               "pattern": 0xFFFFFFFF
                               }
     probability_to_del_dead_end: int = 99 # Probability to del dead end in procent (0-100%)
+    algorithm: CAlg = CAlg.PRIMS  # CAlg.PRIMS or CAlg.DFS
 ```
-
 
 ## Requirements
 

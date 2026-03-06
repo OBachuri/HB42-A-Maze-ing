@@ -67,6 +67,13 @@ PERFECT=False
 
 # Place the "42" pattern in the maze, default value True (True/False)
 # INSERT_42=False 
+
+# Algorithm to generate maze
+# ALGORITHM=PIRMS / DFS (Default - PIRMS)
+# DFS - Depth First Search
+# PIRMS - Prim's algorithm
+#
+# ALGORITHM=PIRMS
 ```
 
 ## Requirements
@@ -75,6 +82,60 @@ PERFECT=False
 - Python 3.10 or later
 - Pydantic
 - Dotenv
+
+## Maze creation Algorythm: 
+
+For this project we implemented two maze generation algorithms:
+
+- Depth First Search (DFS)
+DFS works by exploring one path as far as possible before backtracking. It creates long corridors and deep maze structures.
+
+- Prim’s Algorithm
+Prim’s algorithm builds the maze by randomly expanding from a frontier of cells, which results in more branching paths and a more balanced maze.
+
+### Why These Algorythms
+
+DFS and Prim’s algorithm were chosen because they represent two different strategies for maze generation.
+
+- DFS generates long and deep paths.
+- Prim’s algorithm produces more balanced mazes with many branches.
+
+Implementing both algorithms allowed us to compare different maze structures and generation behaviors.
+
+## Resources
+Resources DFS 
+https://en.wikipedia.org/wiki/Depth-first_search
+
+Resources PRIMS
+https://en.wikipedia.org/wiki/Prim%27s_algorithm
+
+
+### Team Project Management
+
+Team Members
+
+Obachuri
+- Project lead
+- Main architecture design
+- Implementation of the DFS algorithm
+
+Jtruckse
+- Implementation of Prim’s algorithm
+- Integration and testing
+- Documentation and README
+
+### Code Reusebility 
+
+Maze generation and pathfinding was implemented as separate library "MazeGen". 
+
+MazeGen library:
+- Maze generation
+- Pathfinding
+- Read config from file
+- Maze data export to file
+
+More about MazeGen library in [README.md](mazegen-source/mazegen/README.md) file of the library.
+
 
 ## License
 

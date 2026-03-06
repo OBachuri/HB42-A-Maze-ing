@@ -7,6 +7,12 @@ from typing import Any, Generator, cast
 import random
 import time
 from collections import deque
+from enum import Enum
+
+
+class CAlg(Enum):
+    DFS = 1
+    PRIMS = 2
 
 
 class CMazeParams(BaseModel):
@@ -29,6 +35,22 @@ class CMazeParams(BaseModel):
     # Probability to del deadend in procent (0-100%)
     # Only applicable to non-perfect maze
     probability_to_del_dead_end: int | float = Field(ge=0, le=100, default=99)
+    algorithm: CAlg = CAlg.PRIMS
+
+    @field_validator("algorithm", mode="before")
+    @classmethod
+    def parse_algorithm(cls, v: Any) -> CAlg | Any:
+        if isinstance(v, str):
+            try:
+                s = v.strip().upper()
+                if s == "DFS":
+                    return CAlg.DFS
+                if s == "PIRMS":
+                    return CAlg.PRIMS
+            except ValueError:
+                raise ValueError("For algorithm expected 'PRIMS' or 'DFS' ")
+            raise ValueError("For algorithm expected 'PRIMS' or 'DFS' ")
+        return v
 
     @field_validator("entry", "exit", mode="before")
     @classmethod
@@ -65,7 +87,8 @@ class CMazeParams(BaseModel):
                 "entry": self.entry,
                 "exit": self.exit,
                 "output_file": self.output_file,
-                "perfect": self.perfect}
+                "perfect": self.perfect,
+                "algorithm": self.algorithm.name}
         if not (self.seed is None):
             res_["seed"] = self.seed
         if not (self.insert_42):
@@ -135,7 +158,8 @@ class CMazeParams(BaseModel):
                            perfect=cast(bool, os.getenv("PERFECT")),
                            seed=cast(int, os.getenv("SEED")),
                            insert_42=insert_42,
-                           w_cell_size=w_cell_size
+                           w_cell_size=w_cell_size,
+                           algorithm=cast(CAlg, os.getenv("ALGORITHM")),
                            )
 
 
@@ -493,6 +517,172 @@ class MazeGenerator():
         if len(c_path) > 0:
             print("It may be not the shortest path...")
         return best_path
+
+    @classmethod
+    def gen_Pirm(cls, maze: list[list[int]],
+                 mzParam: CMazeParams) -> list[list[int]]:
+        """
+        Value in cell:
+        1 - top wall (North),
+        2 - right (East), 3 - top + right
+        f - pattern
+        """
+
+        def Wall_find_apend(x: int, y: int) -> None:
+            # check if top wall can be opened
+            if ((y != 0) and not ((maze[y-1][x] & 0xf) == 0xf)):
+                walls.append((x, y-1, x, y))
+            # check if reight wall can be opened
+            if ((x < mzParam.width - 1) and
+               not ((maze[y][x+1] & 0xf) == 0xf)):
+                walls.append((x, y, x+1, y))
+            # check if bottom wall can be opened
+            if ((y < mzParam.height - 1)
+               and not ((maze[y+1][x] & 0xf) == 0xf)):
+                walls.append((x, y, x, y+1))
+            # check if left wall can be opened
+            if ((x != 0) and not ((maze[y][x-1] & 0xf) == 0xf)):
+                walls.append((x-1, y, x, y))
+
+        def eval_quantity_of_walls(x: int, y: int) -> int:
+            i = 0
+            for xi in range(max(x - 1, 0), min(x + 2, mzParam.width)):
+                for yi in range(max(y - 1, 0), min(y + 2, mzParam.height)):
+                    if (maze[yi][xi] == 0):
+                        i += 1
+            return i
+
+        x = random.randrange(0, mzParam.width)
+        y = random.randrange(0, mzParam.height)
+        # x1,y1,x2,y2
+        walls: list[tuple[int, int, int, int]] = []
+        visited_cells: set[tuple[int, int]] = set()
+
+        while (maze[y][x] == 0xf):
+            x = random.randrange(0, mzParam.width)
+            y = random.randrange(0, mzParam.height)
+
+        visited_cells.add((x, y))
+
+        Wall_find_apend(x, y)
+
+        while len(walls) > 0:
+            chosen_wall = random.choice(walls)
+            x1, y1, x2, y2 = chosen_wall
+            walls.remove(chosen_wall)
+
+            if ((x1, y1) in visited_cells) and ((x2, y2) in visited_cells):
+                if mzParam.perfect:
+                    continue
+                elif (random.randrange(0, 100) < 60):
+                    continue
+                elif (eval_quantity_of_walls(x1, y1) > 1):
+                    continue
+                elif (eval_quantity_of_walls(x2, y2) > 1):
+                    continue
+
+            if not ((x1, y1) in visited_cells):
+                Wall_find_apend(x1, y1)
+
+            if not ((x2, y2) in visited_cells):
+                Wall_find_apend(x2, y2)
+
+            visited_cells.add((x2, y2))
+            visited_cells.add((x1, y1))
+            if (y1 == y2):
+                maze[y1][x1] = maze[y1][x1] & 0xfffd
+            else:
+                maze[y2][x2] = maze[y2][x2] & 0xfffe
+
+        return maze
+
+    @classmethod
+    def gen_Pirm_animated(cls, maze: list[list[int]],
+                          mzParam: CMazeParams
+                          ) -> Generator[tuple[int, int, int, int]
+                                         | None, None, None]:
+        """
+        Value in cell:
+        1 - top wall (North),
+        2 - right (East), 3 - top + right
+        f - pattern
+        """
+
+        def Wall_find_apend(x: int, y: int) -> None:
+            # check if top wall can be opened
+            if ((y != 0) and not ((maze[y-1][x] & 0xf) == 0xf)):
+                walls.append((x, y-1, x, y))
+            # check if reight wall can be opened
+            if ((x < mzParam.width - 1) and
+               not ((maze[y][x+1] & 0xf) == 0xf)):
+                walls.append((x, y, x+1, y))
+            # check if bottom wall can be opened
+            if ((y < mzParam.height - 1)
+               and not ((maze[y+1][x] & 0xf) == 0xf)):
+                walls.append((x, y, x, y+1))
+            # check if left wall can be opened
+            if ((x != 0) and not ((maze[y][x-1] & 0xf) == 0xf)):
+                walls.append((x-1, y, x, y))
+
+        def eval_quantity_of_walls(x: int, y: int) -> int:
+            i = 0
+            for xi in range(max(x - 1, 0), min(x + 2, mzParam.width)):
+                for yi in range(max(y - 1, 0), min(y + 2, mzParam.height)):
+                    if ((maze[yi][xi] & 3) == 0):
+                        i += 1
+            return i
+
+        x = random.randrange(0, mzParam.width)
+        y = random.randrange(0, mzParam.height)
+        # x1,y1,x2,y2
+        walls: list[tuple[int, int, int, int]] = []
+        visited_cells: set[tuple[int, int]] = set()
+
+        while (maze[y][x] == 0xf):
+            x = random.randrange(0, mzParam.width)
+            y = random.randrange(0, mzParam.height)
+
+        visited_cells.add((x, y))
+        maze[y][x] = maze[y][x] | 0x10  # set visited flag
+
+        yield (x-1, y-1, x+1, y+1)
+
+        Wall_find_apend(x, y)
+
+        while len(walls) > 0:
+            chosen_wall = random.choice(walls)
+            x1, y1, x2, y2 = chosen_wall
+            walls.remove(chosen_wall)
+
+            if ((x1, y1) in visited_cells) and ((x2, y2) in visited_cells):
+                if mzParam.perfect:
+                    continue
+                elif (random.randrange(0, 100) < 60):
+                    continue
+                elif (eval_quantity_of_walls(x1, y1) > 1):
+                    continue
+                elif (eval_quantity_of_walls(x2, y2) > 1):
+                    continue
+
+            if not ((x1, y1) in visited_cells):
+                Wall_find_apend(x1, y1)
+                maze[y1][x1] = maze[y1][x1] | 0x10  # set visited flag
+
+            if not ((x2, y2) in visited_cells):
+                Wall_find_apend(x2, y2)
+                maze[y2][x2] = maze[y2][x2] | 0x10  # set visited flag
+
+            visited_cells.add((x2, y2))
+            visited_cells.add((x1, y1))
+            if (y1 == y2):
+                maze[y1][x1] = maze[y1][x1] & 0xfffd
+            else:
+                maze[y2][x2] = maze[y2][x2] & 0xfffe
+
+            yield (x1-1, y1-1, x2+1, y2+1)
+
+        yield None
+        return
 
     @classmethod
     def gen_DFS(cls, maze: list[list[int]],
@@ -867,14 +1057,17 @@ class MazeGenerator():
 
         yield None
 
-        for a_ in cls.gen_DFS_animated(maze, mzParam, animated=True):
-            yield a_
-
-        if not (mzParam.perfect):
-            for a_ in cls.do_not_prefect_animated(maze,
-                                                  mzParam,
-                                                  animated=True):
+        if (mzParam.algorithm == CAlg.PRIMS):
+            for a_ in cls.gen_Pirm_animated(maze, mzParam):
                 yield a_
+        else:
+            for a_ in cls.gen_DFS_animated(maze, mzParam, animated=True):
+                yield a_
+            if not (mzParam.perfect):
+                for a_ in cls.do_not_prefect_animated(maze,
+                                                      mzParam,
+                                                      animated=True):
+                    yield a_
 
         return
 
@@ -905,9 +1098,12 @@ class MazeGenerator():
         if not (mzParam.seed is None):
             random.seed(mzParam.seed)
 
-        maze = cls.gen_DFS(maze, mzParam)
-        if not (mzParam.perfect):
-            maze = cls.do_not_prefect(maze, mzParam)
+        if (mzParam.algorithm == CAlg.PRIMS):
+            maze = cls.gen_Pirm(maze, mzParam)
+        else:
+            maze = cls.gen_DFS(maze, mzParam)
+            if not (mzParam.perfect):
+                maze = cls.do_not_prefect(maze, mzParam)
 
         return maze
 

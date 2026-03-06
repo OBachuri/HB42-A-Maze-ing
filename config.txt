@@ -28,3 +28,6 @@ PERFECT=True
 # Place the "42" pattern in the maze, default value True (True/False)
 # INSERT_42=False 
 
+# ALGORITHM=PIRMS / DFS (Default - PIRMS)
+# ALGORITHM=PIRMS
+

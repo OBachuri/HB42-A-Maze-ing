@@ -17,7 +17,7 @@ C_DIR := pwd
 BUILD_SOURCE_DIR := "mazegen-source"
 WHEEL := $(BUILD_SOURCE_DIR)/dist/*.whl
 
-MLX_URL := https://cdn.intra.42.fr/document/document/46143/mlx-2.2-py3-ubuntu-any.whl
+MLX_URL := https://cdn.intra.42.fr/document/document/47086/mlx-2.2-py3-ubuntu-any.whl
 MLX_ORIG := mlx-2.2-py3-ubuntu-any.whl
 MLX_FIXED := mlx-2.2-py3-none-any.whl
 
@@ -59,6 +59,7 @@ help:
 re-build:
 	@$(ACTIVATE_VENV)
 	
+	$(PIP) uninstall -y mazegen-0.1.0-py3-none-any.whl
 	$(PYTHON) -m build $(BUILD_SOURCE_DIR)
 	mv $(WHEEL) .
 	$(RM) $(BUILD_SOURCE_DIR)/dist
@@ -108,7 +109,7 @@ clean:
 
 fclean: clean
 	@$(RM) $(VENV_DIR)
-	@$(RM) *.whl
+	@$(RM) *maze*.whl
 
 lint:
 	@$(ACTIVATE_VENV)

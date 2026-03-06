@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from typing import cast, Any
 import random
 from pydantic import ValidationError
-from mazegen import CMazeParams, MazeGenerator
+from mazegen import CMazeParams, MazeGenerator, CAlg
 # import mlx
 from mlx import Mlx
 import atexit
@@ -124,6 +124,13 @@ def main() -> None:
                                      param.w_cell_size,
                                      param.w_cell_size,
                                      param.colors.get("exit", 0xFF38F527))
+                # visited and it is animation
+                elif ((val & 0x10) == 0x10) and (not (draw_area is None)):
+                    draw_filled_rect(x_l + param.w_wall_thickness,
+                                     y_l + param.w_wall_thickness,
+                                     param.w_cell_size,
+                                     param.w_cell_size,
+                                     0xFF303010)
                 if (val & 0x1) == 1:   # Top wall (Nord)
                     draw_filled_rect(x_l,
                                      y_l,
@@ -301,6 +308,17 @@ def main() -> None:
     except Exception:
         w_cell_size = 25
 
+    alg_e = CAlg.PRIMS
+    alg = os.getenv("ALGORITHM")
+    if not (alg is None):
+        alg = alg.strip().upper()
+        if alg == 'DFS':
+            alg_e = CAlg.DFS
+        elif (alg != 'PRIMS') and (len(alg) > 0):
+            print(f"Error: Wrog value of parameter ALGORITHM ({alg})!",
+                  file=sys.stderr)
+            sys.exit(1)
+
     try:
         c_mz_param = CMazeParams(width=cast(int, os.getenv("WIDTH")),
                                  height=cast(int, os.getenv("HEIGHT")),
@@ -313,7 +331,8 @@ def main() -> None:
                                  perfect=cast(bool, os.getenv("PERFECT")),
                                  seed=cast(int, os.getenv("SEED")),
                                  insert_42=insert_42,
-                                 w_cell_size=w_cell_size
+                                 w_cell_size=w_cell_size,
+                                 algorithm=alg_e,
                                  )
     except ValidationError as e:
         # for err in e.errors():
@@ -373,7 +392,7 @@ def main() -> None:
             m.mlx_clear_window(mlx_ptr, m_win_ptr)
             for area_ in MazeGenerator.generate_animated(c_mz_param, maze_):
                 draw_maze(maze_, c_mz_param, [], area_)
-                # time.sleep(0.001)
+                time.sleep(0.01)
             if len(path_) > 0:
                 path_ = MazeGenerator.find_path_BFS(maze_, c_mz_param)
             m.mlx_clear_window(mlx_ptr, m_win_ptr)
@@ -434,6 +453,7 @@ def main() -> None:
     name = "Maze"
     if (c_mz_param.perfect):
         name = "The perfect maze"
+    name = name + ' (' + c_mz_param.algorithm.name + ')'
     m_win_ptr = m.mlx_new_window(mlx_ptr, max(WIN_W, 240), WIN_H, name)
 
     m.mlx_clear_window(mlx_ptr, m_win_ptr)
